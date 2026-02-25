@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import List, Optional, Text
 
 import pytz
-from sqlalchemy import String, Float, DateTime
+from sqlalchemy import String, Float, DateTime, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from pathlib import Path
@@ -49,7 +49,7 @@ class Image(Base):
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
     spot_id: Mapped[UUID] = mapped_column(
-        UUID(as_uuid=True), nullable=False
+        UUID(as_uuid=True), ForeignKey("spots.id"), nullable=False
     )
     file_path: Mapped[str] = mapped_column(
         str(200), nullable=False
