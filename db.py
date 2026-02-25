@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-DATABASE_URL = "postgresql://postgres:2569@localhost:5432/skatemap"
+DATABASE_URL = "postgresql://postgres:2569@localhost:5432/skatemap_db"
 
 engine = create_engine(DATABASE_URL)
 
@@ -17,3 +17,6 @@ def get_db():
 
 def create_db():
     Base.metadata.create_all(bind=engine)
+
+def delete_db():
+    Base.metadata.drop_all(bind=engine)
