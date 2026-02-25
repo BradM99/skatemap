@@ -1,6 +1,5 @@
 from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
-
 import services
 from api_schemas import *
 from db import get_db
