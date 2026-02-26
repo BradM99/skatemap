@@ -5,7 +5,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from main import app
-from db import Base, get_db
+from database.db import Base, get_db
 
 ########################################################################################################################
 # Set up in-memory SQLite engine
