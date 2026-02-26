@@ -7,10 +7,10 @@ from database import spot_db
 
 router = APIRouter(prefix="/spots", tags=["spots"])
 
-@router.get("/spots", response_model=list[Spot])
+@router.get("/get_spots", response_model=list[Spot])
 def get_all_spots(db: Session = Depends(get_db)):
     return spot_db.get_all_spots(db)
 
-@router.post("/spots", response_model=Spot)
-def create_spots(spot: SpotCreate, db: Session = Depends(get_db)):
+@router.post("/create_spot", response_model=Spot)
+def create_spot(spot: SpotCreate, db: Session = Depends(get_db)):
     return spot_db.create_spot(db, spot)
