@@ -1,14 +1,13 @@
 import uuid
 from datetime import datetime
-from typing import List, Optional, Text
+from typing import List, Optional
 
 import pytz
 from sqlalchemy import String, Float, DateTime, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from pathlib import Path
 
-from db import Base
+from database.db import Base
 
 
 class Spot(Base):
