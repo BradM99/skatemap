@@ -37,6 +37,20 @@ pip install -r requirements.txt
 
 - Visit `http://localhost:3000` to view the app
 
+### Docker
+Build Docker image
+```bash
+docker build -t skatemap .
+```
+Run the FastAPI server (URL to view is still http://localhost:8000/docs)
+```bash
+docker run -p 8000:8000 skatemap
+```
+Run tests inside the container
+```bash
+docker run skatemap pytest --maxfail=1 --disable-warnings -q
+```
+
 ---
 
 ## Notes
