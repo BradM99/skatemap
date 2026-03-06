@@ -1,4 +1,5 @@
 from database.db_models import Spot
+from database.spot_db import get_spot
 
 
 class TestSpotDB:
@@ -6,14 +7,9 @@ class TestSpotDB:
     Test class for Spot database operations.
     """
 
-    def test_create_spot_db(self, db):
+    def test_create_spot(self, db):
         """
         Test creating a Spot directly in the database.
-
-        - Creates a Spot ORM instance.
-        - Adds and commits it to the test database.
-        - Refreshes the instance to populate generated fields.
-        - Asserts that an ID was assigned and fields were stored correctly.
         """
         spot = Spot(
             name="Test Spot",
@@ -30,14 +26,26 @@ class TestSpotDB:
         assert spot.name == "Test Spot"
         assert spot.description == "DB test"
 
-    def test_get_all_spots_db(self, db):
+    def test_get_spot_by_id(self, db):
+        """
+        Tests a spot is successfully retrieved from the DB using its ID
+        """
+        spot = Spot(
+            name="Test Spot",
+            description="DB test",
+            latitude=51.5074,
+            longitude=-0.1278,
+        )
+
+        db.add(spot)
+        db.commit()
+
+        result = get_spot(db, spot_id=spot.id)
+        assert result.id == spot.id
+
+    def test_get_all_spots(self, db):
         """
         Test retrieving all Spot records directly from the database.
-
-        - Inserts a Spot into the test database.
-        - Queries all Spot records using the SQLAlchemy session.
-        - Asserts that the result is a list containing exactly one Spot.
-        - Verifies the stored data matches the inserted values.
         """
         spot = Spot(
             name="Test Spot",
@@ -54,3 +62,12 @@ class TestSpotDB:
         assert isinstance(spots, list)
         assert len(spots) == 1
         assert spots[0].name == "Test Spot"
+
+    def test_get_all_spots_empty_db(self, db):
+        """
+        Tests DB returns empty list if DB is empty
+        """
+
+        spots = db.query(Spot).all()
+
+        assert spots == []
