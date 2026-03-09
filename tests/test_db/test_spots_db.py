@@ -20,10 +20,11 @@ class TestSpotDB:
 
 
     def test_delete_spot(self, db, spot):
+        """
+        Tests a spot is properly deleted from the database after deleting it
+        """
         assert get_spot(db, spot.id) is not None
-
         delete_spot(db, spot)
-
         assert get_spot(db, spot.id) is None
 
 
