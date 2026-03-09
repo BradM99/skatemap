@@ -1,5 +1,5 @@
 from database.db_models import Spot
-from database.spot_db import get_spot
+from database.spot_db import get_spot, delete_spot
 
 
 class TestSpotDB:
@@ -7,56 +7,38 @@ class TestSpotDB:
     Test class for Spot database operations.
     """
 
-    def test_create_spot(self, db):
+    def test_create_spot(self, db, spot):
         """
         Test creating a Spot directly in the database.
+        Spot fixture creates a valid spot and puts it in the database
         """
-        spot = Spot(
-            name="Test Spot",
-            description="DB test",
-            latitude=51.5074,
-            longitude=-0.1278,
-        )
-
-        db.add(spot)
-        db.commit()
-        db.refresh(spot)
-
         assert spot.id is not None
         assert spot.name == "Test Spot"
-        assert spot.description == "DB test"
+        assert spot.description == "Fixture test spot"
+        assert spot.longitude == -0.1278
+        assert spot.latitude == 51.5074
 
-    def test_get_spot_by_id(self, db):
+
+    def test_delete_spot(self, db, spot):
+        assert get_spot(db, spot.id) is not None
+
+        delete_spot(db, spot)
+
+        assert get_spot(db, spot.id) is None
+
+
+
+    def test_get_spot_by_id(self, db, spot):
         """
         Tests a spot is successfully retrieved from the DB using its ID
         """
-        spot = Spot(
-            name="Test Spot",
-            description="DB test",
-            latitude=51.5074,
-            longitude=-0.1278,
-        )
-
-        db.add(spot)
-        db.commit()
-
         result = get_spot(db, spot_id=spot.id)
         assert result.id == spot.id
 
-    def test_get_all_spots(self, db):
+    def test_get_all_spots(self, db, spot):
         """
         Test retrieving all Spot records directly from the database.
         """
-        spot = Spot(
-            name="Test Spot",
-            description="DB test",
-            latitude=51.5074,
-            longitude=-0.1278,
-        )
-
-        db.add(spot)
-        db.commit()
-
         spots = db.query(Spot).all()
 
         assert isinstance(spots, list)
