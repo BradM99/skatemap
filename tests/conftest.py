@@ -4,6 +4,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
+from database.db_models import Spot
 from main import app
 from database.db import Base, get_db
 
@@ -66,3 +67,19 @@ def db():
         yield session
     finally:
         session.close()
+
+
+@pytest.fixture
+def spot(db):
+    spot = Spot(
+        name="Test Spot",
+        description="Fixture test spot",
+        latitude=51.5074,
+        longitude=-0.1278,
+    )
+
+    db.add(spot)
+    db.commit()
+    db.refresh(spot)
+
+    return spot
