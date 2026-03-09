@@ -74,5 +74,5 @@ def delete_spot(db: Session, spot: Spot) -> None:
 
 
 def delete_all_spots(db: Session) -> None:
-    db.execute(delete(Spot))
+    db.query(Spot).delete()
     db.commit()
