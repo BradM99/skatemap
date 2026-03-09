@@ -21,10 +21,25 @@ def create_spot(db: Session, data: SpotCreate) -> Spot:
 def get_spot(db: Session, spot_id: UUID) -> Spot | None:
     return db.get(Spot, spot_id)
 
+def get_by_coords(db: Session, longitude: float, latitude: float) -> Spot | None:
+    """
+    Gets a Spot from the Database via its longitude and latitude
+    (Unsure if this will be useful in production)
+    :param db:
+    :param longitude:
+    :param latitude:
+    :return:
+    """
+    statement = select(Spot).where(
+        Spot.longitude == longitude,
+        Spot.latitude == latitude
+    )
+
+    return db.execute(statement).scalar_one_or_none()
+
 
 def get_all_spots(db: Session) -> Sequence[Spot]:
-    result = db.execute(select(Spot))
-    return result.scalars().all()
+    return db.execute(select(Spot)).scalars().all()
 
 
 def get_spots_paginated(
@@ -59,5 +74,5 @@ def delete_spot(db: Session, spot: Spot) -> None:
 
 
 def delete_all_spots(db: Session) -> None:
-    db.query(Spot).delete()
+    db.execute(delete(Spot))
     db.commit()
