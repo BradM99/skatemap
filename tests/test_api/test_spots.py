@@ -26,7 +26,7 @@ class TestSpotEndpoints:
             "longitude": -0.1278
         }
 
-        response = client.post("/spots/create_spot", json=spot_data)
+        response = client.post("/spots/", json=spot_data)
 
         assert response.status_code == HTTPStatus.OK
         data = response.json()
@@ -52,10 +52,10 @@ class TestSpotEndpoints:
             "longitude": -0.1278
         }
 
-        response = client.post("/spots/create_spot", json=spot_data)
+        response = client.post("/spots/", json=spot_data)
         assert response.status_code == HTTPStatus.OK
 
-        response = app_client.get("/spots/get_spots")
+        response = app_client.get("/spots/")
         assert response.status_code == HTTPStatus.OK
         data = response.json()
         assert isinstance(data, list)
