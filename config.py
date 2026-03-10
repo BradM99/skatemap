@@ -1,11 +1,20 @@
 from pydantic import BaseModel, Field, PostgresDsn, computed_field
-
+from pathlib import Path
+from typing import ClassVar
 
 class Settings(BaseModel):
     """Application configuration."""
 
     ENV: str = Field("development")
     DEBUG: bool = Field(True)
+
+    APP_NAME: str = Field("Skatemap Backend", description="Application name")
+    APP_VERSION: str = Field("0.1.0", description="Application version")
+    HOSTNAME: str = Field("127.0.0.1", description="Hostname")
+    PORT: int = Field(8000, description="Port")
+
+    # Using ClassVar to tell pydantic not to treat this like a model field
+    BASE_DIR: ClassVar[Path]  = Path(__file__).resolve().parent #/skatemap
 
     POSTGRES_USER: str = Field("postgres")
     POSTGRES_PASSWORD: str = Field("2569")
