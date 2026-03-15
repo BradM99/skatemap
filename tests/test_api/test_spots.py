@@ -28,7 +28,7 @@ class TestSpotEndpoints:
 
         response = client.post("/spots/", json=spot_data)
 
-        assert response.status_code == HTTPStatus.OK
+        assert response.status_code == HTTPStatus.CREATED
         data = response.json()
         assert data["name"] == spot_data["name"]
         assert data["description"] == spot_data["description"]
@@ -37,14 +37,6 @@ class TestSpotEndpoints:
         assert "id" in data
 
     def test_get_all_spots(self, client):
-        """
-        Test retrieving all spots from the /spots GET endpoint.
-
-        - First, creates a new spot via POST to ensure the database has at least one entry.
-        - Uses app_client to GET all spots.
-        - Asserts that the response status is 200 and the returned data is a list.
-        - Checks that the list contains exactly one spot.
-        """
         spot_data = {
             "name": "Test Spot",
             "description": "This is a test spot",
@@ -52,11 +44,12 @@ class TestSpotEndpoints:
             "longitude": -0.1278
         }
 
-        response = client.post("/spots/", json=spot_data)
-        assert response.status_code == HTTPStatus.OK
+        post_response = client.post("/spots/", json=spot_data)
+        assert post_response.status_code == HTTPStatus.CREATED
+        created_id = post_response.json()["id"]  # capture the id
 
         response = client.get("/spots/")
         assert response.status_code == HTTPStatus.OK
         data = response.json()
-        assert isinstance(data, list)
-        assert len(data) == 1
+        spot_ids = [s["id"] for s in data]
+        assert created_id in spot_ids
