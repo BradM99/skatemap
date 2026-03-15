@@ -55,7 +55,7 @@ class TestSpotEndpoints:
         response = client.post("/spots/", json=spot_data)
         assert response.status_code == HTTPStatus.OK
 
-        response = app_client.get("/spots/")
+        response = client.get("/spots/")
         assert response.status_code == HTTPStatus.OK
         data = response.json()
         assert isinstance(data, list)
