@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from database.db import get_db
 from api_schemas import SpotCreate, SpotUpdate, SpotRead
 from database import spot_db
+from database.db_models import Spot
 
 router = APIRouter(prefix="/spots", tags=["spots"])
 
@@ -15,6 +16,23 @@ def get_all_spots(db: Session = Depends(get_db)):
     Returns a sequence of spots all spots in the database
     """
     return spot_db.get_all_spots(db)
+
+def get_spots_by_bounding_box(db: Session, min_lat: float, max_lat: float, min_lng: float, max_lng: float):
+    """
+    Gets all spots within a specified boundary. Easily implemented on the FE with map.getBounds() with Leaflet.js
+    :param db:
+    :param min_lat:
+    :param max_lat:
+    :param min_lng:
+    :param max_lng:
+    :return:
+    """
+    return db.query(Spot).filter(
+        Spot.latitude >= min_lat,
+        Spot.latitude <= max_lat,
+        Spot.longitude >= min_lng,
+        Spot.longitude <= max_lng,
+    ).all()
 
 
 @router.post("/", response_model=SpotRead, status_code=HTTPStatus.CREATED)
