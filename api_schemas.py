@@ -1,5 +1,5 @@
 from datetime import datetime
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from uuid import UUID
 
 
@@ -51,3 +51,21 @@ class ImageRead(ImageBase):
 
     class Config:
         from_attributes = True
+
+class UserCreate(BaseModel):
+    """Schema for registering a new user."""
+    username: str
+    password: str = Field(min_length=8, max_length=72)
+
+class UserPublic(BaseModel):
+    """Schema for returning a user from the API, excludes sensitive fields."""
+    id: UUID
+    username: str
+
+    class Config:
+        from_attributes = True
+
+class Token(BaseModel):
+    """Schema for a JWT token response."""
+    access_token: str
+    token_type: str = "bearer"
