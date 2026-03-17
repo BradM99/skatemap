@@ -1,13 +1,11 @@
-from starlette.exceptions import HTTPException
 from uuid import UUID
-from typing import Sequence
 
-from sqlalchemy import select
 from sqlalchemy.orm import Session
 from starlette import status
+from starlette.exceptions import HTTPException
 
-from database.db_models import Spot
-from api_schemas import SpotCreate, SpotUpdate
+from database.db_models import Spot, Image
+
 
 def get_or_404(db: Session, model, object_id: UUID):
     """
@@ -27,3 +25,15 @@ def get_spot_images(db: Session, spot_id: UUID):
     """
     spot = get_or_404(db, Spot, spot_id)
     return spot.images
+
+
+def create_spot_image(db: Session, spot_id: UUID, file_path: str) -> Image:
+    """
+    Creates a new image record in the database. Returns 404 if spot cannot be found.
+    """
+    spot = get_or_404(db, Spot, spot_id)
+    image = Image(spot_id=spot.id, file_path=file_path)
+    db.add(image)
+    db.commit()
+    db.refresh(image)
+    return image
