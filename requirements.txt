@@ -1,3 +1,5 @@
+python-jose
+passlib
 pytz
 fastapi
 sqlalchemy
