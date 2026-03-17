@@ -57,3 +57,16 @@ class Image(Base):
         DateTime, default=datetime.now(pytz.timezone('Europe/London'))
     )
     spot: Mapped["Spot"] = relationship("Spot", back_populates="images")
+
+class Users(Base):
+    __tablename__ = "users"
+
+    id: Mapped[UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    username: Mapped[str] = mapped_column(
+        String(50), nullable=False, unique=True
+    )
+    hashed_password: Mapped[str] = mapped_column(
+        String(255), nullable=False
+    )
