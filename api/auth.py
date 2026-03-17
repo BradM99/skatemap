@@ -1,8 +1,7 @@
-from datetime import timedelta, datetime
+from datetime import timedelta
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 from starlette import status
 
@@ -12,10 +11,6 @@ from database.users_db import create_user, authenticate_user, create_access_toke
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
-SECRET_KEY = "1898b2c34dm482an48935bn424789b1n4983254ng532598"
-ALGORITHM = "HS256"
-
-bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_bearer = OAuth2PasswordBearer(tokenUrl="auth/login")
 
 @router.post("/register", response_model=UserPublic, status_code=status.HTTP_201_CREATED)
