@@ -15,6 +15,7 @@ class Settings(BaseModel):
 
     # Using ClassVar to tell pydantic not to treat this like a model field
     BASE_DIR: ClassVar[Path]  = Path(__file__).resolve().parent #/skatemap
+    UPLOAD_DIR: ClassVar[Path] = Path( BASE_DIR / "static/images")
 
     JWT_SECRET_KEY: str = Field("change-me-in-production")
     JWT_ALGORITHM: str = Field("HS256")
