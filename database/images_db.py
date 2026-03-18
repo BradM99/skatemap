@@ -19,6 +19,7 @@ def get_or_404(db: Session, model, object_id: UUID):
         )
     return obj
 
+
 def get_spot_images(db: Session, spot_id: UUID):
     """
     Gets all images associated with a specific spot
@@ -36,4 +37,17 @@ def create_spot_image(db: Session, spot_id: UUID, file_path: str) -> Image:
     db.add(image)
     db.commit()
     db.refresh(image)
+    return image
+
+
+def delete_spot_image(db: Session, spot_id: UUID, image_id: UUID) -> Image:
+    """
+    Deletes an image record from the database.
+    Returns 404 if image cannot be found or if the image does not belong to the specified spot.
+    """
+    image = get_or_404(db, Image, image_id)
+    if image.spot_id != spot_id:
+        raise HTTPException(status_code=404, detail="Image not found for this spot")
+    db.delete(image)
+    db.commit()
     return image
