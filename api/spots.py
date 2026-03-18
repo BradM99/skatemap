@@ -56,10 +56,18 @@ def get_spot(spot_id: UUID, db: Session = Depends(get_db)):
 
 @router.get("/{spot_id}/images", response_model=list[ImageRead], status_code=HTTPStatus.OK)
 def get_spot_images(spot_id: UUID, db: Session = Depends(get_db)):
+    """
+    Gets all images for a specific spot.
+    Raises 404 if spot does not exist.
+    """
     return images_db.get_spot_images(db, spot_id)
 
 @router.post("/{spot_id}/images", response_model=ImageRead, status_code=201)
 def upload_image(spot_id: UUID, file: UploadFile = File(...), db: Session = Depends(get_db)):
+    """
+    Uploads a new image for a specific spot.
+    Raises 404 if spot does not exist.
+    """
     save_dir = Settings.UPLOAD_DIR / str(spot_id)
     save_dir.mkdir(parents=True, exist_ok=True)
     file_path = save_dir / file.filename
@@ -71,4 +79,8 @@ def upload_image(spot_id: UUID, file: UploadFile = File(...), db: Session = Depe
 
 @router.delete("/{spot_id}/images/{image_id}", response_model=ImageRead, status_code=HTTPStatus.OK)
 def delete_image(spot_id: UUID, image_id: UUID, db: Session = Depends(get_db)):
+    """
+    Deletes an image from a specific spot.
+    Raises 404 if spot or image does not exist.
+    """
     return images_db.delete_spot_image(db, spot_id, image_id)
