@@ -7,10 +7,7 @@ from fastapi import HTTPException
 from starlette import status
 
 from database.db_models import Users
-
-SECRET_KEY = "abc123"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+from config import settings
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -88,7 +85,7 @@ def create_access_token(
     Generate a signed JWT access token.
 
     Encodes the provided payload with an expiry timestamp (`exp`) and signs
-    it using the configured SECRET_KEY and ALGORITHM.
+    it using the configured JWT_SECRET_KEY and JWT_ALGORITHM.
 
     The `sub` (subject) claim in `data` should be a unique, stable identifier
     for the user — typically the username or user ID as a string.
@@ -97,11 +94,11 @@ def create_access_token(
 
     expire = datetime.now(timezone.utc) + (
         expires_delta if expires_delta
-        else timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        else timedelta(minutes=settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
     )
     payload.update({"exp": expire})
 
-    return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+    return jwt.encode(payload, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
 
 
 def decode_access_token(token: str) -> dict:
@@ -112,7 +109,7 @@ def decode_access_token(token: str) -> dict:
     failure so this can be used directly as a FastAPI dependency helper.
     """
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
         return payload
     except JWTError:
         raise HTTPException(

@@ -16,6 +16,10 @@ class Settings(BaseModel):
     # Using ClassVar to tell pydantic not to treat this like a model field
     BASE_DIR: ClassVar[Path]  = Path(__file__).resolve().parent #/skatemap
 
+    JWT_SECRET_KEY: str = Field("change-me-in-production")
+    JWT_ALGORITHM: str = Field("HS256")
+    JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(30)
+
     POSTGRES_USER: str = Field("postgres")
     POSTGRES_PASSWORD: str = Field("2569")
     POSTGRES_HOST: str = Field("localhost")
