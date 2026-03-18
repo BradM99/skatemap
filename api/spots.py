@@ -1,14 +1,14 @@
 import shutil
 from http import HTTPStatus
-from pathlib import Path
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from sqlalchemy.orm import Session
 
-from database.db import get_db
-from api_schemas import SpotCreate, SpotUpdate, SpotRead, ImageRead, ImageCreate
+from api_schemas import SpotCreate, SpotRead, ImageRead
+from config import Settings
 from database import spot_db, images_db
+from database.db import get_db
 from database.db_models import Spot
 
 router = APIRouter(prefix="/spots", tags=["spots"])
@@ -58,12 +58,7 @@ def get_spot_images(spot_id: UUID, db: Session = Depends(get_db)):
 
 @router.post("/{spot_id}/images", response_model=ImageRead, status_code=201)
 def upload_image(spot_id: UUID, file: UploadFile = File(...), db: Session = Depends(get_db)):
-    """
-    Uploads a new image for a specific spot.
-    :param spot_id: UUID of the spot to which the image will be attached
-    :param file: File to upload
-    """
-    save_dir = Path("static/images") / str(spot_id)
+    save_dir = Settings.UPLOAD_DIR / str(spot_id)
     save_dir.mkdir(parents=True, exist_ok=True)
     file_path = save_dir / file.filename
 
@@ -71,3 +66,7 @@ def upload_image(spot_id: UUID, file: UploadFile = File(...), db: Session = Depe
         shutil.copyfileobj(file.file, buffer)
 
     return images_db.create_spot_image(db, spot_id, str(file_path))
+
+@router.delete("/{spot_id}/images/{image_id}", response_model=ImageRead, status_code=HTTPStatus.OK)
+def delete_image(spot_id: UUID, image_id: UUID, db: Session = Depends(get_db)):
+    return images_db.delete_spot_image(db, spot_id, image_id)
