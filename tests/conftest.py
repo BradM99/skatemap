@@ -4,9 +4,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
+from config import Settings
+from database.db import Base, get_db
 from database.db_models import Spot
 from main import app
-from database.db import Base, get_db
 
 SQLALCHEMY_TEST_URL = "sqlite:///:memory:"
 
@@ -21,6 +22,14 @@ TestingSessionLocal = sessionmaker(
     autoflush=False,
     bind=engine,
 )
+
+@pytest.fixture(autouse=True)
+def temp_upload_dir(tmp_path):
+    """Redirect uploads to a temp directory, cleaned up after each test."""
+    original_upload_dir = Settings.UPLOAD_DIR
+    Settings.UPLOAD_DIR = tmp_path
+    yield tmp_path
+    Settings.UPLOAD_DIR = original_upload_dir
 
 
 @pytest.fixture(scope="function", autouse=True)
@@ -77,9 +86,7 @@ def spot(db):
         latitude=51.5074,
         longitude=-0.1278,
     )
-
     db.add(spot)
     db.commit()
     db.refresh(spot)
-
     return spot
