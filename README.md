@@ -33,11 +33,8 @@ pip install -r requirements.txt
 
 - Configure database URL in `.env`  
 - Setup database tables (`python -m db.create_db`)
-- Start server: Run the file `run.py` to spin up the app and open the swagger UI **OR** `uvicorn app.main:app --reload`
-- 
-
-
-- Visit `http://localhost:3000` to view the app
+- Start server: Run the file `run.py` to spin up the app and open the swagger UI 
+- The url should be: `http://localhost:3000`
 
 ### Docker
 Build Docker image
