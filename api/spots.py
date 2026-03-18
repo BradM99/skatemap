@@ -13,6 +13,8 @@ from database.db_models import Spot
 
 router = APIRouter(prefix="/spots", tags=["spots"])
 
+#TODO: Nicer responses for all endpoints
+#TODO: Make sure delete image endpoint also deletes physical image
 
 @router.get("/", response_model=list[SpotRead], status_code=HTTPStatus.OK)
 def get_all_spots(db: Session = Depends(get_db)):
