@@ -19,7 +19,8 @@
 
 ---
 
-## Setup (local development)
+## Setup (local development) 
+Note: Repo is still early in development, steps may not work as predicted.
 
 ### Backend
 ```bash
