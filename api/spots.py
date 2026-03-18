@@ -52,11 +52,11 @@ def get_spot(spot_id: UUID, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Spot not found")
     return spot
 
-@router.get("/spots/{spot_id}/images", response_model=list[ImageRead], status_code=HTTPStatus.OK)
+@router.get("/{spot_id}/images", response_model=list[ImageRead], status_code=HTTPStatus.OK)
 def get_spot_images(spot_id: UUID, db: Session = Depends(get_db)):
     return images_db.get_spot_images(db, spot_id)
 
-@router.post("/spots/{spot_id}/images", response_model=ImageRead, status_code=201)
+@router.post("/{spot_id}/images", response_model=ImageRead, status_code=201)
 def upload_image(spot_id: UUID, file: UploadFile = File(...), db: Session = Depends(get_db)):
     """
     Uploads a new image for a specific spot.
