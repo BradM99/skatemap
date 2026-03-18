@@ -1,8 +1,7 @@
-from starlette.testclient import TestClient
+import uuid
 from http import HTTPStatus
-from main import app
 
-app_client = TestClient(app)
+from config import settings
 
 
 class TestSpotEndpoints:
@@ -44,12 +43,60 @@ class TestSpotEndpoints:
             "longitude": -0.1278
         }
 
-        post_response = client.post("/spots/", json=spot_data)
-        assert post_response.status_code == HTTPStatus.CREATED
-        created_id = post_response.json()["id"]  # capture the id
+        response = client.post("/spots/", json=spot_data)
+        assert response.status_code == HTTPStatus.CREATED
+        created_id = response.json()["id"]
 
         response = client.get("/spots/")
         assert response.status_code == HTTPStatus.OK
         data = response.json()
         spot_ids = [s["id"] for s in data]
         assert created_id in spot_ids
+
+class TestSpotImages:
+
+    relative_image_path = settings.BASE_DIR / "tests" / "test_images" / "test_spot.png"
+
+    def test_add_image(self, client, spot):
+        """
+        Test adding an image to a spot
+        """
+        response = client.post(f"/spots/{spot.id}/images",
+                               files={"file": open(self.relative_image_path, "rb")})
+        assert response.status_code == HTTPStatus.CREATED
+        data = response.json()
+        assert "id" in data
+
+    def test_add_image_no_spot(self, client, spot):
+        """
+        Tests that adding an image to a spot that doesn't exist returns a 404 NOT FOUND
+        """
+        fake_id = uuid.uuid4()
+        response = client.post(f"/spots/{fake_id}/images",
+                               files={"file": open(self.relative_image_path, "rb")})
+        assert response.status_code == HTTPStatus.NOT_FOUND
+
+    def test_delete_image(self, client, spot):
+        """
+        Test deleting an image.
+        """
+        post_response = client.post(f"/spots/{spot.id}/images",
+                                    files={"file": open(self.relative_image_path, "rb")})
+        assert post_response.status_code == HTTPStatus.CREATED
+
+        image_id = post_response.json()["id"]
+
+        delete_response = client.delete(f"/spots/{spot.id}/images/{image_id}")
+        assert delete_response.status_code == HTTPStatus.OK
+
+    def test_list_images(self, client):
+        """
+        Test listing all images.
+        """
+        pass
+
+    def test_update_image(self, client):
+        """
+        Test updating an image.
+        """
+        pass
