@@ -1,59 +1,127 @@
 # SkateMap
 
-**SkateMap** is a web app for skateboarders to discover, share, and review street skate spots.
+SkateMap is a backend API for a web app that lets skateboarders discover and share street skate spots. Built with FastAPI and PostgreSQL.
 
 ---
 
-## Features (MVP)
-- Interactive map displaying skate spots using **OpenStreetMap**  
-- Add new skate spots with name, description, and location  
-- View spot details and images  
+## Features
+
+- Browse all skate spots
+- Add a spot with a name, description, and coordinates
+- Upload and delete images for a spot
+- Spot locations sourced from OpenStreetMap
 
 ---
 
 ## Tech Stack
-- **Backend:** FastAPI, PostgreSQL, SQLAlchemy (2.0), Alembic, Pydantic  
-- **Frontend:** Next.js, React-Leaflet, Tailwind CSS  
-- **Image Storage:** Local folder served via FastAPI `StaticFiles`  
-- **Map:** OpenStreetMap + Leaflet.js  
+
+- **FastAPI** — API framework with automatic OpenAPI docs
+- **PostgreSQL** — primary database
+- **SQLAlchemy 2.x** — ORM with typed mapped columns
+- **Pydantic v2** — request/response validation and settings management
+- **Uvicorn** — ASGI server
+- **pytest** — test suite with a dedicated PostgreSQL test database
+
+See [`docs/architecture.md`](docs/architecture.md) for a full breakdown of the project structure, layer diagram, request lifecycle, and data model.
 
 ---
 
-## Setup (local development) 
-Note: Repo is still early in development, steps may not work as predicted.
+## Local Setup
 
-### Backend
+### Prerequisites
+
+- Python 3.11+
+- PostgreSQL running locally
+
+### Install
+
 ```bash
-cd backend
-python -m venv venv
-source venv/bin/activate  # Linux/macOS
-venv\Scripts\activate     # Windows
+python -m venv .venv
+source .venv/bin/activate       # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-- Configure database URL in `.env`  
-- Setup database tables (`python -m db.create_db`)
-- Start server: Run the file `run.py` to spin up the app and open the swagger UI 
-- The url should be: `http://localhost:3000`
+### Configure
 
-### Docker
-Build Docker image
+Create a `.env` file at the project root. These are the defaults — adjust to match your local Postgres:
+
+```
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=yourpassword
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+POSTGRES_DB=skatemap_db
+```
+
+### Database
+
+Create the database in Postgres:
+
+```sql
+CREATE DATABASE skatemap_db;
+```
+
+Tables are created automatically when the app starts via SQLAlchemy's `create_all`.
+
+### Run
+
+```bash
+python run.py
+```
+
+This starts the server and opens the Swagger UI at `http://127.0.0.1:8000/docs`.
+
+---
+
+## Running Tests
+
+Create a separate test database:
+
+```sql
+CREATE DATABASE skatemap_test_db;
+```
+
+Then run:
+
+```bash
+pytest
+```
+
+Tests use a dedicated PostgreSQL database. Tables are created and dropped around each test for full isolation.
+
+---
+
+## Docker
+
+Build the image:
+
 ```bash
 docker build -t skatemap .
 ```
-Run the FastAPI server (URL to view is still http://localhost:8000/docs)
+
+Run the server:
+
 ```bash
 docker run -p 8000:8000 skatemap
 ```
-Run tests inside the container
+
+Run the tests inside the container:
+
 ```bash
-docker run skatemap pytest --maxfail=1 --disable-warnings -q
+docker run skatemap pytest
 ```
 
 ---
 
-## Notes
-- All database IDs are UUIDs  
-- Images stored locally as files, paths handled with `pathlib.Path`  
-- Deleting a spot removes its reviews and images automatically  
-- Leaflet used for interactive map markers
+## API
+
+Full interactive documentation is available at `/docs` once the server is running. A static OpenAPI schema is at `/openapi.json`.
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/spots/` | List all spots |
+| POST | `/spots/` | Create a spot |
+| GET | `/spots/{id}` | Get a spot by ID |
+| GET | `/spots/{id}/images` | List images for a spot |
+| POST | `/spots/{id}/images` | Upload an image to a spot |
+| DELETE | `/spots/{id}/images/{image_id}` | Delete an image |
