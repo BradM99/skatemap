@@ -29,7 +29,7 @@ class SpotRead(SpotBase):
     id: UUID
     created_at: datetime
 
-    class Config:
+    class ConfigDict:
         from_attributes = True
 
 
@@ -49,5 +49,5 @@ class ImageRead(ImageBase):
     spot_id: UUID
     uploaded_at: datetime
 
-    class Config:
+    class ConfigDict:
         from_attributes = True

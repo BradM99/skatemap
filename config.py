@@ -31,7 +31,7 @@ class Settings(BaseModel):
             f"@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
         )
 
-    class Config:
+    class ConfigDict:
         env_file = ".env"
         env_file_encoding = "utf-8"
 
