@@ -17,10 +17,6 @@ class Settings(BaseModel):
     BASE_DIR: ClassVar[Path]  = Path(__file__).resolve().parent #/skatemap
     UPLOAD_DIR: ClassVar[Path] = Path( BASE_DIR / "static/images")
 
-    JWT_SECRET_KEY: str = Field("change-me-in-production")
-    JWT_ALGORITHM: str = Field("HS256")
-    JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(30)
-
     POSTGRES_USER: str = Field("postgres")
     POSTGRES_PASSWORD: str = Field("2569")
     POSTGRES_HOST: str = Field("localhost")
