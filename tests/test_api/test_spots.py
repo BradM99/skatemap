@@ -14,7 +14,7 @@ class TestSpotEndpoints:
         Test the /spots POST endpoint.
 
         Sends a new spot payload and asserts that:
-        - The response status code is 200 (OK)
+        - The response status code is 201 (CREATED)
         - The response JSON contains the correct name, description, latitude, longitude
         - An 'id' field is present in the returned data
         """
