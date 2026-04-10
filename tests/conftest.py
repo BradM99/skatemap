@@ -2,51 +2,41 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.pool import StaticPool
+from sqlalchemy.pool import NullPool
 
-from config import Settings
+from config import Settings, settings
 from database.db import Base, get_db
-from database.db_models import Spot
+from database.models import Spot
 from main import app
 
-SQLALCHEMY_TEST_URL = "sqlite:///:memory:"
-
-engine = create_engine(
-    SQLALCHEMY_TEST_URL,
-    connect_args={"check_same_thread": False},
-    poolclass=StaticPool,
+TEST_DATABASE_URL = (
+    f"postgresql://{settings.POSTGRES_USER}:{settings.POSTGRES_PASSWORD}"
+    f"@{settings.POSTGRES_HOST}:{settings.POSTGRES_PORT}/skatemap_test_db"
 )
 
-TestingSessionLocal = sessionmaker(
-    autocommit=False,
-    autoflush=False,
-    bind=engine,
-)
+engine = create_engine(TEST_DATABASE_URL, poolclass=NullPool)
+
+TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
 
 @pytest.fixture(autouse=True)
-def temp_upload_dir(tmp_path):
-    """Redirect uploads to a temp directory, cleaned up after each test."""
-    original_upload_dir = Settings.UPLOAD_DIR
-    Settings.UPLOAD_DIR = tmp_path
-    yield tmp_path
-    Settings.UPLOAD_DIR = original_upload_dir
-
-
-@pytest.fixture(scope="function", autouse=True)
 def setup_database():
-    """
-    Create all tables before each test and drop them afterwards
-    to ensure complete isolation between tests.
-    """
+    """Create all tables before each test and drop them after for full isolation."""
     Base.metadata.create_all(bind=engine)
     yield
     Base.metadata.drop_all(bind=engine)
 
 
+@pytest.fixture(autouse=True)
+def temp_upload_dir(tmp_path):
+    """Redirect uploads to a temp directory, cleaned up after each test."""
+    original = Settings.UPLOAD_DIR
+    Settings.UPLOAD_DIR = tmp_path
+    yield tmp_path
+    Settings.UPLOAD_DIR = original
+
+
 def override_get_db():
-    """
-    Provide a database session connected to the test database.
-    """
     db = TestingSessionLocal()
     try:
         yield db
@@ -58,19 +48,8 @@ app.dependency_overrides[get_db] = override_get_db
 
 
 @pytest.fixture
-def client():
-    """
-    Provide a TestClient connected to the FastAPI app.
-    """
-    with TestClient(app) as c:
-        yield c
-
-
-@pytest.fixture
-def db():
-    """
-    Provide a SQLAlchemy session connected to the test database.
-    """
+def db(setup_database):
+    """Provide a SQLAlchemy session connected to the test database."""
     session = TestingSessionLocal()
     try:
         yield session
@@ -79,7 +58,15 @@ def db():
 
 
 @pytest.fixture
+def client(setup_database):
+    """Provide a TestClient connected to the FastAPI app."""
+    with TestClient(app) as c:
+        yield c
+
+
+@pytest.fixture
 def spot(db):
+    """Create and return a test spot in the database."""
     spot = Spot(
         name="Test Spot",
         description="Fixture test spot",
