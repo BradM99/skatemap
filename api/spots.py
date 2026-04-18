@@ -1,5 +1,6 @@
 import shutil
 from http import HTTPStatus
+from pathlib import Path
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
@@ -13,7 +14,6 @@ from database.db import get_db
 router = APIRouter(prefix="/spots", tags=["spots"])
 
 #TODO: Nicer responses for all endpoints
-#TODO: Make sure delete image endpoint also deletes physical image
 
 
 @router.get("/", response_model=list[SpotRead], status_code=HTTPStatus.OK)
@@ -75,4 +75,8 @@ def delete_image(spot_id: UUID, image_id: UUID, db: Session = Depends(get_db)):
     Deletes an image from a specific spot.
     Raises 404 if spot or image does not exist.
     """
-    return images_db.delete_spot_image(db, spot_id, image_id)
+    image = images_db.delete_spot_image(db, spot_id, image_id)
+    file_path = Path(image.file_path)
+    if file_path.exists():
+        file_path.unlink()
+    return image
