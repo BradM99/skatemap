@@ -36,7 +36,7 @@ class Spot(Base):
         Float, nullable=False
     )
     created_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.now(pytz.timezone('Europe/London'))
+        DateTime, default=lambda: datetime.now(pytz.timezone('Europe/London'))
     )
 
     images: Mapped[List["Image"]] = relationship("Image", cascade="all, delete-orphan")
@@ -54,6 +54,6 @@ class Image(Base):
         str(200), nullable=False
     )
     uploaded_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.now(pytz.timezone('Europe/London'))
+        DateTime, default=lambda: datetime.now(pytz.timezone('Europe/London'))
     )
     spot: Mapped["Spot"] = relationship("Spot", back_populates="images")
