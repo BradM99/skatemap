@@ -67,7 +67,7 @@ class TestSpotImages:
         Test adding an image to a spot
         """
         response = client.post(f"/spots/{spot.id}/images",
-                               files={"file": open(self.test_image_dir, "rb")})
+                               files={"file": open(self.test_image_dir / "test_spot.png", "rb")})
         assert response.status_code == HTTPStatus.CREATED
         data = response.json()
         assert "id" in data
@@ -81,18 +81,22 @@ class TestSpotImages:
                                files={"file": open(self.test_image_dir / "test_spot.png", "rb")})
         assert response.status_code == HTTPStatus.NOT_FOUND
 
-    def test_delete_image(self, client, spot):
+    def test_delete_image(self, client, spot, temp_upload_dir):
         """
-        Test deleting an image.
+        Test deleting an image removes the DB record and the file from disk.
         """
         post_response = client.post(f"/spots/{spot.id}/images",
-                                    files={"file": open(self.test_image_dir, "rb")})
+                                    files={"file": open(self.test_image_dir / "test_spot.png", "rb")})
         assert post_response.status_code == HTTPStatus.CREATED
 
-        image_id = post_response.json()["id"]
+        image_data = post_response.json()
+        image_id = image_data["id"]
+        file_path = temp_upload_dir / str(spot.id) / "test_spot.png"
+        assert file_path.exists()
 
         delete_response = client.delete(f"/spots/{spot.id}/images/{image_id}")
         assert delete_response.status_code == HTTPStatus.OK
+        assert not file_path.exists()
 
     def test_list_images(self, client, spot):
         """

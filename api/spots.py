@@ -1,5 +1,6 @@
 import shutil
 from http import HTTPStatus
+from pathlib import Path
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, UploadFile, File
@@ -73,5 +74,10 @@ def delete_image(spot_id: UUID, image_id: UUID, db: Session = Depends(get_db)):
     Deletes an image from a specific spot.
     Raises 404 if spot or image does not exist.
     """
+    image = images_db.delete_spot_image(db, spot_id, image_id)
+    file_path = Path(image.file_path)
+    if file_path.exists():
+        file_path.unlink()
+    return image
     image = images_db.delete_spot_image(db, spot_id, image_id)
     return ApiResponse(message="Image Deleted", data=image)
