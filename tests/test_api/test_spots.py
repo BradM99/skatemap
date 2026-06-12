@@ -79,6 +79,30 @@ class TestSpotEndpoints:
         response = client.delete(f"/spots/{uuid4()}")
         assert response.status_code == HTTPStatus.NOT_FOUND
 
+    def test_get_spots_by_bbox(self, client, spot):
+        """Tests that all spots are returned within bounding box.
+        Spot fixture long and lat = 51.5074, -0.1278"""
+        spot_data = {
+            "name": "Test Spot",
+            "description": "This is a test spot",
+            "latitude": 53.9999,
+            "longitude": -1.0000
+        }
+        response = client.post("/spots/", json=spot_data)
+        assert response.status_code == HTTPStatus.CREATED
+        created_id = response.json()["id"]
+
+        spots = client.get("/spots/search/bbox", params={"min_lat": 50.0000, "max_lat": 55.0000,
+                                                  "min_lng": -2.0000, "max_lng": 1.0000})
+        assert spots.status_code == HTTPStatus.OK
+        data = spots.json()
+        spot_ids = [s["id"] for s in data]
+        assert len(spot_ids) == 2
+        assert created_id, spot.id in spot_ids
+
+
+
+
 class TestSpotImages:
     """Test class for /spots/{id}/images API endpoints."""
 
