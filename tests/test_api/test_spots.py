@@ -39,7 +39,7 @@ class TestSpotEndpoints:
         assert response.status_code == HTTPStatus.CREATED
         created_id = response.json()["id"]
 
-        response = client.get("/spots/")
+        response = client.get("/spots/", params={"offset": 0, "limit": 10})
         assert response.status_code == HTTPStatus.OK
         data = response.json()
         spot_ids = [s["id"] for s in data]
