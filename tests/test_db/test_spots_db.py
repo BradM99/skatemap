@@ -2,7 +2,7 @@ from starlette.exceptions import HTTPException
 
 import pytest
 
-from database.spot_db import get_spot, delete_spot, get_all_spots
+from database.spot_db import get_spot, delete_spot, get_all_spots, get_spots_paginated
 
 
 class TestSpotDB:
@@ -41,7 +41,7 @@ class TestSpotDB:
         """
         Test retrieving all Spot records directly from the database.
         """
-        spots = get_all_spots(db)
+        spots = get_spots_paginated(db, 0, 10)
         assert len(spots) == 1
         assert spots[0].name == "Test Spot"
 
