@@ -2,6 +2,8 @@ from pydantic import BaseModel, Field, PostgresDsn, computed_field
 from pathlib import Path
 from typing import ClassVar
 
+MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB
+
 class Settings(BaseModel):
     """Application configuration."""
 
