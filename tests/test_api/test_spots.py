@@ -1,6 +1,8 @@
 from uuid import uuid4
 from http import HTTPStatus
 
+import pytest
+
 from config import settings
 
 
@@ -114,6 +116,14 @@ class TestSpotImages:
             response = client.post(f"/spots/{spot.id}/images", files={"file": f})
         assert response.status_code == HTTPStatus.CREATED
         assert "id" in response.json()
+
+    def test_upload_image_wrong_type(self, client, spot):
+        """Tests uploading an image to a spot with a wrong image type."""
+        bad_image = self.test_image_dir / "test_spot.gif"
+        response = client.post(f"/spots/{spot.id}/images",
+                               files={"file": open(bad_image, "rb")})
+        assert response.status_code == HTTPStatus.BAD_REQUEST
+
 
     def test_add_image_no_spot(self, client):
         """Tests that uploading to a non-existent spot returns 404."""
