@@ -10,6 +10,7 @@ from api.schemas import SpotCreate, SpotRead, ImageRead, SpotUpdate
 from config import Settings
 from database import spot_db, images_db
 from database.db import get_db
+from config import MAX_FILE_SIZE
 
 ALLOWED_TYPES = {"image/jpeg", "image/png", "image/webp"}
 
@@ -60,16 +61,21 @@ def get_spot_images(spot_id: UUID, db: Session = Depends(get_db)):
 
 
 @router.post("/{spot_id}/images", response_model=ImageRead, status_code=HTTPStatus.CREATED)
-def upload_image(spot_id: UUID, file: UploadFile = File(...), db: Session = Depends(get_db)):
-    """Uploads an image to a spot. Returns 404 if spot not found."""
+async def upload_image(spot_id: UUID, file: UploadFile = File(...), db: Session = Depends(get_db)):
+    """Uploads an image to a spot. Returns 404 if spot not found. Checks size and file type."""
     if file.content_type not in ALLOWED_TYPES:
         raise HTTPException(status_code=400, detail="Invalid file type.")
+
+    contents = await file.read()
+    if len(contents) > MAX_FILE_SIZE:
+        raise HTTPException(status_code=400, detail="File too large")
+
     save_dir = Settings.UPLOAD_DIR / str(spot_id)
     save_dir.mkdir(parents=True, exist_ok=True)
     file_path = save_dir / file.filename
 
     with file_path.open("wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
+        buffer.write(contents)
 
     return images_db.create_spot_image(db, spot_id, str(file_path))
 
