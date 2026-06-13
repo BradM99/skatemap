@@ -3,7 +3,7 @@ from http import HTTPStatus
 
 import pytest
 
-from config import settings
+from config import settings, MAX_FILE_SIZE
 
 
 class TestSpotEndpoints:
@@ -122,6 +122,16 @@ class TestSpotImages:
         bad_image = self.test_image_dir / "test_spot.gif"
         response = client.post(f"/spots/{spot.id}/images",
                                files={"file": open(bad_image, "rb")})
+        assert response.status_code == HTTPStatus.BAD_REQUEST
+
+    def test_upload_image_too_large(self, client, spot):
+        """Tests uploading an image that exceeds the size limit.
+        Python doesn't complain that the file path doesn't exist here because we are just passing raw bytes as
+        the file content"""
+        large_file = b"0" * (MAX_FILE_SIZE + 1)
+        with open(self.test_image_dir / "test_spot.png", "rb") as f:
+            response = client.post(f"/spots/{spot.id}/images",
+                                   files={"file": ("big.png", large_file, "image/png")})
         assert response.status_code == HTTPStatus.BAD_REQUEST
 
 
