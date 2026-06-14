@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import ClassVar
 
 from pydantic import Field, PostgresDsn, computed_field
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 5MB
 
@@ -35,9 +35,7 @@ class Settings(BaseSettings):
             f"@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
         )
 
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
 
 settings = Settings()
