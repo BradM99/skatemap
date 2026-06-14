@@ -1,10 +1,10 @@
-from uuid import UUID
 from typing import Sequence
+from uuid import UUID
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from api.schemas import SpotCreate, SpotUpdate
+from api.schemas.spots import SpotCreate, SpotUpdate
 from database.models import Spot
 from database.utils import get_or_404
 

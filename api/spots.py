@@ -6,7 +6,8 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, UploadFile, File, HTTPException
 from sqlalchemy.orm import Session
 
-from api.schemas import SpotCreate, SpotRead, ImageRead, SpotUpdate
+from api.schemas.images import ImageRead
+from api.schemas.spots import SpotCreate, SpotUpdate, SpotRead
 from config import Settings
 from database import spot_db, images_db
 from database.db import get_db
