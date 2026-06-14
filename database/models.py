@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Optional
 
 import pytz
@@ -36,7 +36,7 @@ class Spot(Base):
         Float, nullable=False
     )
     created_at: Mapped[datetime] = mapped_column(
-        DateTime, default=lambda: datetime.now(pytz.timezone('Europe/London'))
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
     )
 
     images: Mapped[List["Image"]] = relationship("Image", cascade="all, delete-orphan")
@@ -57,3 +57,13 @@ class Image(Base):
         DateTime, default=lambda: datetime.now(pytz.timezone('Europe/London'))
     )
     spot: Mapped["Spot"] = relationship("Spot", back_populates="images")
+
+class User(Base):
+    __tablename__ = "users"
+    id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    username: Mapped[str] = mapped_column(String(15), nullable=False, unique=True)
+    email: Mapped[str] = mapped_column(String(254), nullable=False, unique=True)
+    hashed_password: Mapped[str] = mapped_column(String, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
+    )
