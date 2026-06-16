@@ -3,10 +3,14 @@ import time
 import webbrowser
 import uvicorn
 
+from config import settings
+
+
 def open_browser():
     """Wait a bit, then open the FastAPI docs page."""
     time.sleep(1)
     webbrowser.open("http://127.0.0.1:8000/docs")
+    # print("DB URL:", settings.DATABASE_URL)
 
 if __name__ == "__main__":
     """
