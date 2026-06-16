@@ -6,7 +6,7 @@ from sqlalchemy.pool import NullPool
 
 from config import Settings, settings
 from database.db import Base, get_db
-from database.models import Spot
+from database.models import Spot, User
 from main import app
 
 TEST_DATABASE_URL = (
@@ -77,3 +77,31 @@ def spot(db):
     db.commit()
     db.refresh(spot)
     return spot
+
+@pytest.fixture
+def user(db):
+    """Create and return a test user in the database."""
+    user = User(
+        username="username",
+        email="email",
+        hashed_password="password"
+    )
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return user
+
+@pytest.fixture
+def multiple_users(db):
+    users = []
+    for i in range(5):
+        user = User(
+            username=f"username{i}",
+            email=f"email{i}",
+            hashed_password="password"
+        )
+        users.append(user)
+
+    db.add_all(users)
+    db.commit()
+    return users
