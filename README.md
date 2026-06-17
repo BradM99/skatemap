@@ -1,6 +1,7 @@
 # SkateMap
 
 SkateMap is a backend API for a web app that lets skateboarders discover and share street skate spots. Built with FastAPI and PostgreSQL.
+NOTE: The tech stack is still accurate, some install instructions or finer details may be out of date whilst I develop the backend at a faster rate. I will update the README and documentation as soon as I can
 
 ---
 
