@@ -83,7 +83,7 @@ def user(db):
     """Create and return a test user in the database."""
     user = User(
         username="username",
-        email="email",
+        email="email@address.com",
         hashed_password="password"
     )
     db.add(user)
@@ -97,7 +97,7 @@ def multiple_users(db):
     for i in range(5):
         user = User(
             username=f"username{i}",
-            email=f"email{i}",
+            email=f"email{i}@address.com",
             hashed_password="password"
         )
         users.append(user)
