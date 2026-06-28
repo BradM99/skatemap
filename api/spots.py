@@ -6,12 +6,15 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, UploadFile, File, HTTPException
 from sqlalchemy.orm import Session
 
+from api.auth import get_current_user
 from api.schemas.images import ImageRead
 from api.schemas.spots import SpotCreate, SpotUpdate, SpotRead
 from config import Settings
 from database import spot_db, images_db
 from database.db import get_db
 from config import MAX_FILE_SIZE
+from database.models import User
+from database.utils import verify_spot_owner
 
 ALLOWED_TYPES = {"image/jpeg", "image/png", "image/webp"}
 
@@ -25,21 +28,23 @@ def get_all_spots(offset: int = 0, limit: int = 25, db: Session = Depends(get_db
 
 
 @router.post("/", response_model=SpotRead, status_code=HTTPStatus.CREATED)
-def create_spot(spot: SpotCreate, db: Session = Depends(get_db)):
+def create_spot(spot: SpotCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """Creates a new spot."""
-    return spot_db.create_spot(db, spot)
+    return spot_db.create_spot(db, spot, current_user.id)
 
 @router.put("/{spot_id}", response_model=SpotRead, status_code=HTTPStatus.OK)
-def update_spot(spot_id: UUID, spot: SpotUpdate, db: Session = Depends(get_db)):
-    """Updates an existing spot by using spot ID, and spot update data."""
+def update_spot(spot_id: UUID,
+                spot: SpotUpdate,
+                db: Session = Depends(get_db),
+                current_user: User = Depends(get_current_user)):
+    """Updates an existing spot. Only the creator can update it."""
+    verify_spot_owner(db, spot_id, current_user.id)
     return spot_db.update_spot(db, spot_id, spot)
 
 @router.delete("/{spot_id}", status_code=HTTPStatus.OK)
-def delete_spot(spot_id: UUID, db: Session = Depends(get_db)):
+def delete_spot(spot_id: UUID, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """Deletes an existing spot by using spot ID."""
-    spot = spot_db.get_spot(db, spot_id)
-    if not spot:
-        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Spot not found")
+    spot = verify_spot_owner(db, spot_id, current_user.id)
     return spot_db.delete_spot(db, spot)
 
 
@@ -62,8 +67,13 @@ def get_spot_images(spot_id: UUID, db: Session = Depends(get_db)):
 
 
 @router.post("/{spot_id}/images", response_model=ImageRead, status_code=HTTPStatus.CREATED)
-async def upload_image(spot_id: UUID, file: UploadFile = File(...), db: Session = Depends(get_db)):
+async def upload_image(spot_id: UUID,
+                       file: UploadFile = File(...),
+                       db: Session = Depends(get_db),
+                       current_user: User = Depends(get_current_user)):
     """Uploads an image to a spot. Returns 404 if spot not found. Checks size and file type."""
+    verify_spot_owner(db, spot_id, current_user.id)
+
     if file.content_type not in ALLOWED_TYPES:
         raise HTTPException(status_code=400, detail="Invalid file type.")
 
@@ -82,8 +92,13 @@ async def upload_image(spot_id: UUID, file: UploadFile = File(...), db: Session 
 
 
 @router.delete("/{spot_id}/images/{image_id}", response_model=ImageRead, status_code=HTTPStatus.OK)
-def delete_image(spot_id: UUID, image_id: UUID, db: Session = Depends(get_db)):
+def delete_image(spot_id: UUID,
+                 image_id: UUID,
+                 db: Session = Depends(get_db),
+                 current_user: User = Depends(get_current_user)):
     """Deletes an image from a spot and removes the file from disk."""
+    verify_spot_owner(db, spot_id, current_user.id)
+
     image = images_db.delete_spot_image(db, spot_id, image_id)
     file_path = Path(image.file_path)
     if file_path.exists():
