@@ -12,3 +12,4 @@ pydantic-settings
 python-jose
 passlib
 pwdlib[argon2]
+pytest-cov
